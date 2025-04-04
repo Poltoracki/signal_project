@@ -66,3 +66,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Project members
    - Petar Poltoracki (ID 6402914)
+   - Dimitar Dimitrov (ID 6405747)
