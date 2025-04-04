@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.alerts.AlertGenerator;
 
 /**
@@ -24,7 +25,7 @@ public class DataStorage {
     }
 
     public DataStorage(DataReader deader) {
-
+        this.patientMap = new HashMap<>();
     }
 
     /**
