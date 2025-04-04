@@ -23,6 +23,10 @@ public class DataStorage {
         this.patientMap = new HashMap<>();
     }
 
+    public DataStorage(DataReader deader) {
+
+    }
+
     /**
      * Adds or updates patient data in the storage.
      * If the patient does not exist, a new Patient object is created and added to
