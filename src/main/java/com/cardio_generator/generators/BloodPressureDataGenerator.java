@@ -3,13 +3,23 @@ package com.cardio_generator.generators;
 import java.util.Random;
 
 import com.cardio_generator.outputs.OutputStrategy;
-
+/**
+ * BloodPressureDataGenerator is responsible for generating blood pressure data for patients.
+ * It simulates the generation of systolic and diastolic blood pressure values
+ * based on a baseline value with small variations for realism.
+ *
+ * <p>Output data is sent via the configured {@link OutputStrategy}.
+ */
 public class BloodPressureDataGenerator implements PatientDataGenerator {
     private static final Random random = new Random();
 
     private int[] lastSystolicValues;
     private int[] lastDiastolicValues;
-
+    /**
+     * Constructs a BloodPressureDataGenerator with a specified number of patients.
+     *
+     * @param patientCount The number of patients to generate blood pressure data for.
+     */
     public BloodPressureDataGenerator(int patientCount) {
         lastSystolicValues = new int[patientCount + 1];
         lastDiastolicValues = new int[patientCount + 1];
@@ -20,7 +30,13 @@ public class BloodPressureDataGenerator implements PatientDataGenerator {
             lastDiastolicValues[i] = 70 + random.nextInt(15); // Random baseline between 70 and 85
         }
     }
-
+    /**
+     * Generates blood pressure data for a specific patient.
+     * The values are generated around the last recorded values with small variations for realism.
+     *
+     * @param patientId The ID of the patient.
+     * @param outputStrategy The output strategy to use for sending the generated data.
+     */
     @Override
     public void generate(int patientId, OutputStrategy outputStrategy) {
         try {
