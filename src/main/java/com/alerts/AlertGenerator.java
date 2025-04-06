@@ -23,7 +23,7 @@ public class AlertGenerator {
      * // Shortened the original comment by removing redundancy since
      * // the class-level JavaDoc already describes its usage.
      *
-     * @param dataStorage the data storage system that provides access to patient data
+     * @param dataStorage The data storage system that provides access to patient data
      */
     public AlertGenerator(DataStorage dataStorage) {
         this.dataStorage = dataStorage;
@@ -36,7 +36,7 @@ public class AlertGenerator {
      * // Improved readability by removing unnecessary line breaks and corrected
      * // JavaDoc inline link formatting to explicitly include the method parameter.
      *
-     * @param patient the patient data to evaluate for alert conditions
+     * @param patient The patient data to evaluate for alert conditions
      */
     public void evaluateData(Patient patient) {
         // Implementation goes here
@@ -49,7 +49,7 @@ public class AlertGenerator {
      * // Removed overly detailed explanation regarding alert completeness
      * // to adhere to concise, focused JavaDoc recommendations.
      *
-     * @param alert the alert object containing details about the alert condition
+     * @param alert The alert object containing details about the alert condition
      */
     private void triggerAlert(Alert alert) {
         // Implementation might involve logging the alert or notifying staff
