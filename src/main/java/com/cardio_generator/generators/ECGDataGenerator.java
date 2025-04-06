@@ -3,12 +3,21 @@ package com.cardio_generator.generators;
 import java.util.Random;
 
 import com.cardio_generator.outputs.OutputStrategy;
-
+/**
+ * ECGDataGenerator is responsible for generating ECG data for patients.
+ * It simulates the generation of ECG values based on a simplified model of heart activity.
+ *
+ * <p>Output data is sent via the configured {@link OutputStrategy}.
+ */
 public class ECGDataGenerator implements PatientDataGenerator {
     private static final Random random = new Random();
     private double[] lastEcgValues;
     private static final double PI = Math.PI;
-
+    /**
+     * Constructs an ECGDataGenerator with a specified number of patients.
+     *
+     * @param patientCount The number of patients to generate ECG data for.
+     */
     public ECGDataGenerator(int patientCount) {
         lastEcgValues = new double[patientCount + 1];
         // Initialize the last ECG value for each patient
@@ -16,7 +25,13 @@ public class ECGDataGenerator implements PatientDataGenerator {
             lastEcgValues[i] = 0; // Initial ECG value can be set to 0
         }
     }
-
+    /**
+     * Generates ECG data for a specific patient.
+     * The values are generated based on a simplified model of heart activity.
+     *
+     * @param patientId The ID of the patient.
+     * @param outputStrategy The output strategy to use for sending the generated data.
+     */
     @Override
     public void generate(int patientId, OutputStrategy outputStrategy) {
         // TODO Check how realistic this data is and make it more realistic if necessary
@@ -29,7 +44,14 @@ public class ECGDataGenerator implements PatientDataGenerator {
             e.printStackTrace(); // This will print the stack trace to help identify where the error occurred.
         }
     }
-
+    /**
+     * Simulates an ECG waveform using a simplified model.
+     * This method generates a continuous ECG signal based on heart activity.
+     *
+     * @param patientId The ID of the patient.
+     * @param lastEcgValue The last recorded ECG value for the patient.
+     * @return The simulated ECG value.
+     */
     private double simulateEcgWaveform(int patientId, double lastEcgValue) {
         // Simplified ECG waveform generation based on sinusoids
         double hr = 60.0 + random.nextDouble() * 20.0; // Simulate heart rate variability between 60 and 80 bpm
