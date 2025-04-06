@@ -4,12 +4,23 @@ import java.util.Random;
 
 import com.cardio_generator.outputs.OutputStrategy;
 
+/**
+ * BloodLevelsDataGenerator is responsible for generating blood levels data for patients.
+ * It simulates the generation of cholesterol, white blood cells, and red blood cells levels
+ * based on a baseline value with small variations for realism.
+ *
+ * <p>Output data is sent via the configured {@link OutputStrategy}.
+ */
 public class BloodLevelsDataGenerator implements PatientDataGenerator {
     private static final Random random = new Random();
     private final double[] baselineCholesterol;
     private final double[] baselineWhiteCells;
     private final double[] baselineRedCells;
-
+    /**
+     * Constructs a BloodLevelsDataGenerator with a specified number of patients.
+     *
+     * @param patientCount The number of patients to generate blood levels data for.
+     */
     public BloodLevelsDataGenerator(int patientCount) {
         // Initialize arrays to store baseline values for each patient
         baselineCholesterol = new double[patientCount + 1];
@@ -23,7 +34,13 @@ public class BloodLevelsDataGenerator implements PatientDataGenerator {
             baselineRedCells[i] = 4.5 + random.nextDouble() * 1.5; // Initial random baseline
         }
     }
-
+    /**
+     * Generates blood levels data for a specific patient.
+     * The values are generated around the baseline with small variations for realism.
+     *
+     * @param patientId The ID of the patient.
+     * @param outputStrategy The output strategy to use for sending the generated data.
+     */
     @Override
     public void generate(int patientId, OutputStrategy outputStrategy) {
         try {
