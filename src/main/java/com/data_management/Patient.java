@@ -60,4 +60,23 @@ public class Patient {
         }
         return filteredRecords;
     }
+
+    // We chose to add this method because otherwise, it would have been
+    // impossible to implement many of the alerts described in the week 3
+    // project document. For example Blood Pressure data alerts, we need
+    // to compare 3 consecutive patient records to check how the blood
+    // pressure is changing, however the first getRecords method would 
+    // force us to choose a specific time interval to check, however,
+    // with that arise 2 problems, there is no objective logical way
+    // for us to decide which time interval to choose since we are not
+    // told with what data type we are working with, seconds, minutes, years!?
+    // It is simply not specified so it is impossible for us to even set
+    // custom parameters to check. For that reason instead of caring for
+    // this unclear time interval, we decide to simply compare all consecutive
+    // records to one another and see if any of them would fulfill the conditions.
+    // For that reason, we decided to add this extra and simple method.
+    public List<PatientRecord> getRecords() 
+    {
+        return patientRecords;
+    }
 }
