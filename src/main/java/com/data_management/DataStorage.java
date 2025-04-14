@@ -85,6 +85,20 @@ public class DataStorage {
         return patientMap.get(patientId).getRecords();
     }
 
+    // Added this method to simplify getting records for specific measurement.
+    public List<PatientRecord> getRecords(int patientId, String type) 
+    {
+        List<PatientRecord> output = new ArrayList<PatientRecord>();
+        for(PatientRecord record : getRecords(patientId))
+        {
+            if(record.getRecordType() == type)
+            {
+                output.add(record);
+            }
+        }
+        return output;
+    }
+
     /**
      * The main method for the DataStorage class.
      * Initializes the system, reads data into storage, and continuously monitors

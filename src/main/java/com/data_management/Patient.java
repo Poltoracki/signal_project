@@ -79,20 +79,4 @@ public class Patient {
     {
         return patientRecords;
     }
-
-    // Added this method to simplify getting records for specific measurement.
-    public List<PatientRecord> getRecords(String type) 
-    {
-        List<PatientRecord> output = new ArrayList<PatientRecord>();
-        for(PatientRecord record : patientRecords)
-        {
-            if(record.getRecordType() == type)
-            {
-                output.add(record);
-            }
-        }
-        return output;
-    }
-
-
 }
