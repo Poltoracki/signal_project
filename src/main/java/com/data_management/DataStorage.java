@@ -80,6 +80,11 @@ public class DataStorage {
         return new ArrayList<>(patientMap.values());
     }
 
+    public List<PatientRecord> getRecords(int patientId) 
+    {
+        return patientMap.get(patientId).getRecords();
+    }
+
     /**
      * The main method for the DataStorage class.
      * Initializes the system, reads data into storage, and continuously monitors
