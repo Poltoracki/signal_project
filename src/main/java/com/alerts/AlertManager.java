@@ -1,23 +1,22 @@
 package com.alerts;
 
-public class AlertManager {
-    private static AlertManager instance;
-    private int alertCount;
+import java.util.LinkedList;
 
-    private AlertManager() {
+public class AlertManager 
+{
+    private int alertCount;
+    private LinkedList<Alert> alerts;
+
+    public AlertManager()
+    {
+        alerts = new LinkedList<Alert>();
         alertCount = 0;
     }
 
-    public static synchronized AlertManager getInstance() {
-        if (instance == null) {
-            instance = new AlertManager();
-        }
-        return instance;
-    }
-
-    public void triggerAlert(String message) {
+    public void addAlert(Alert alert)
+    {
+        alerts.add(alert);
         alertCount++;
-        System.out.println("ALERT: " + message);
     }
 
     public int getAlertCount() {
