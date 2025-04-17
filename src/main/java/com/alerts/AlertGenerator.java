@@ -1,7 +1,8 @@
 package com.alerts;
 
-import com.data_management.DataStorage;
-import com.data_management.Patient;
+import java.util.List;
+
+import com.data_management.*;
 
 // JavaDoc commenting style retained for this class since it provides 
 // external API documentation beneficial for clarity and consistency.
@@ -38,9 +39,10 @@ public class AlertGenerator {
      *
      * @param patient The patient data to evaluate for alert conditions
      */
-    public void evaluateData(Patient patient) {
+    public void evaluateData(Patient patient, long startTime, long endTime) {
         // Implementation goes here
     }
+
 
     /**
      * Triggers an alert for the monitoring system. This method can be extended to
@@ -52,6 +54,6 @@ public class AlertGenerator {
      * @param alert The alert object containing details about the alert condition
      */
     private void triggerAlert(Alert alert) {
-        // Implementation might involve logging the alert or notifying staff
+        System.out.println("Patient: " + alert.getPatientId() + "; Condition: " + alert.getCondition() + "; Time: " + alert.getTimestamp() + ";");
     }
 }
