@@ -121,13 +121,13 @@ public class AlertGenerator {
 
                 // Checking for critical upper threshold
                 if(dBloodRecords.get(i).getMeasurementValue() > 120) {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial upper threshold for systolic blood pressure", dBloodRecords.get(i).getTimestamp());
+                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial upper threshold for diastolic blood pressure", dBloodRecords.get(i).getTimestamp());
                     triggerAlert(alert);
                 }
 
                 // Checking for critical lower threshold
                 if(dBloodRecords.get(i).getMeasurementValue() < 60) {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial lower threshold for systolic blood pressure", dBloodRecords.get(i).getTimestamp());
+                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial lower threshold for diastolic blood pressure", dBloodRecords.get(i).getTimestamp());
                     triggerAlert(alert);
                 }
             }
