@@ -71,25 +71,11 @@ public class DataStorage {
         return new ArrayList<>(); // return an empty list if no patient is found
     }
 
-    /**
-     * Retrieves a collection of all patients stored in the data storage.
-     *
-     * @return a list of all patients
-     */
-    public List<Patient> getAllPatients() {
-        return new ArrayList<>(patientMap.values());
-    }
-
-    public List<PatientRecord> getRecords(int patientId) 
-    {
-        return patientMap.get(patientId).getRecords();
-    }
-
     // Added this method to simplify getting records for specific measurement.
-    public List<PatientRecord> getRecords(int patientId, String type) 
+    public List<PatientRecord> getRecords(int patientId, String type, long startTime, long endTime) 
     {
         List<PatientRecord> output = new ArrayList<PatientRecord>();
-        for(PatientRecord record : getRecords(patientId))
+        for(PatientRecord record : getRecords(patientId, startTime, endTime))
         {
             if(record.getRecordType() == type)
             {
@@ -97,6 +83,15 @@ public class DataStorage {
             }
         }
         return output;
+    }
+    
+    /**
+     * Retrieves a collection of all patients stored in the data storage.
+     *
+     * @return a list of all patients
+     */
+    public List<Patient> getAllPatients() {
+        return new ArrayList<>(patientMap.values());
     }
 
     /**
@@ -129,7 +124,7 @@ public class DataStorage {
 
         // Evaluate all patients' data to check for conditions that may trigger alerts
         for (Patient patient : storage.getAllPatients()) {
-            alertGenerator.evaluateData(patient);
+            alertGenerator.evaluateData(patient, 1714376789050L, 1714376789051L);
         }
     }
 }
