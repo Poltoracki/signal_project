@@ -84,6 +84,20 @@ public class DataStorage {
         }
         return output;
     }
+
+    // Simply added for convenience in case it is needed
+    public List<PatientRecord> getRecords(String type, List<PatientRecord> records) 
+    {
+        List<PatientRecord> output = new ArrayList<PatientRecord>();
+        for(PatientRecord record : records)
+        {
+            if(record.getRecordType() == type)
+            {
+                output.add(record);
+            }
+        }
+        return output;
+    }
     
     /**
      * Retrieves a collection of all patients stored in the data storage.

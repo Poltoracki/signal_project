@@ -79,4 +79,9 @@ public class Patient {
     {
         return patientRecords;
     }
+
+    public int getId()
+    {
+        return patientId;
+    }
 }
