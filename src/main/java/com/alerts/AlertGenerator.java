@@ -1,6 +1,8 @@
 package com.alerts;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.data_management.*;
 
@@ -166,6 +168,44 @@ public class AlertGenerator {
                 }
             }
         }
+
+        // Hypotensive hypoxemia data alert
+        LinkedHashMap<PatientRecord, PatientRecord> combinedrecords = new LinkedHashMap<PatientRecord, PatientRecord>();
+
+        // Since this alert should happen when both of the conditions are occurring at the same time
+        // that would mean that the records would have the same timestamp as each other, that's why
+        // I am pairing up the records with the same timestamp with each other.
+        // For the future, in case we would like to increase the accuracy of the alert, we can make it
+        // so that the records must be within a certain time range of one another in order to be paired
+        // up and checked together, however that would be done only if necessary
+        for(PatientRecord record1 : sBloodRecords)
+        {
+            for(PatientRecord record2 : bSaturationRecords)
+            {
+                if(record1.getTimestamp() == record2.getTimestamp())
+                {
+                    combinedrecords.put(record1, record1);
+                }
+            }
+        }
+
+        if(combinedrecords.size() < 1)
+        {
+            System.out.println("Insufficient number of records to check for hypotensive hypoxemia!");
+        }
+        else {
+            // In the entries, the key represents the systolic blood pressure, while the value is the blood saturation.
+            for(Map.Entry<PatientRecord, PatientRecord> entry : combinedrecords.entrySet())
+            {
+                if(entry.getKey().getMeasurementValue() < 90 && entry.getValue().getMeasurementValue() < 92)
+                {
+                    Alert alert = new Alert(Integer.toString(patient.getId()), "Satisfied conditions for hypotensive hypoxemia!", entry.getKey().getTimestamp());
+                    triggerAlert(alert);
+                }
+            }
+        }
+
+        
     }
 
     /**
