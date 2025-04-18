@@ -45,7 +45,7 @@ public class AlertGenerator {
         //sort the records so that they're chronically aligned
         records.sort((r1, r2) -> Long.compare(r1.getTimestamp(), r2.getTimestamp()));
 
-        // Blood pressure alerts
+        // Blood pressure data alerts
         List<PatientRecord> sBloodRecords = dataStorage.getRecords("systolic blood pressure", records);
         List<PatientRecord> dBloodRecords = dataStorage.getRecords("diastolic blood pressure", records);
 
@@ -133,7 +133,39 @@ public class AlertGenerator {
             }
         }
 
+        // Blood saturation data alerts
+        List<PatientRecord> bSaturationRecords = dataStorage.getRecords("blood oxygen saturation", records);
 
+        // The values we get from getMeasurementValue represent percentages, so 92 would be 92%.
+        if(bSaturationRecords.size() < 1) {
+            System.out.println("Insufficient number of records to check for blood oxygen saturation!");
+        }
+        else {
+            for(int i = 0; i < bSaturationRecords.size(); i++)
+            {
+                if(i < bSaturationRecords.size() - 1)
+                {
+                    // Test for rapid drop
+                    // We chose 600000 to be the value used to represent 10 minutes since in the given example
+                    // in DataStorageTest, the value given for timestamp is in miliseconds, and 10 minutes are equal
+                    // to 600000 miliseconds, and since the records are chronologically ordered, it is guaranteed that
+                    // i + 1 must have either a higher or equal timestamp.
+                    if(bSaturationRecords.get(i).getMeasurementValue() - bSaturationRecords.get(i+1).getMeasurementValue() > 5 &&
+                    bSaturationRecords.get(i+1).getTimestamp() - bSaturationRecords.get(i).getTimestamp() > 6000000)
+                    {
+                        Alert alert = new Alert(Integer.toString(patient.getId()), "Passed test for rapid drop in blood oxygen saturation", bSaturationRecords.get(i+1).getTimestamp());
+                        triggerAlert(alert);
+                    }
+                }
+
+                // Test for low saturation
+                if(bSaturationRecords.get(i).getMeasurementValue() < 92)
+                {
+                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed threshold for low blood oxygen saturation!", bSaturationRecords.get(i).getTimestamp());
+                    triggerAlert(alert);
+                }
+            }
+        }
     }
 
     /**
