@@ -205,7 +205,49 @@ public class AlertGenerator {
             }
         }
 
-        
+        //ECG data alert
+        List<PatientRecord> ecgRecords = dataStorage.getRecords("ecg", records);
+
+        if(ecgRecords.size() < 1)
+        {
+            System.out.println("Insufficient number of records to check for ECG!");
+        }
+        else {
+            // Setting the value for average
+            double average = 0;
+            double sum = 0;
+            for(PatientRecord record : ecgRecords)
+            {
+                sum += record.getMeasurementValue();
+            }
+            average = sum/ecgRecords.size();
+
+            // Checking for alerts
+            for(PatientRecord record : ecgRecords)
+            {
+                if(record.getMeasurementValue() > 1.5 * average)
+                {
+                    Alert alert = new Alert(Integer.toString(patient.getId()), "Measured abnormally high ECG record!", record.getTimestamp());
+                    triggerAlert(alert);
+                }
+            }
+        }
+
+        // Triggered alert
+        List<PatientRecord> triggerRecords = dataStorage.getRecords("patient", records);
+
+        if(triggerRecords.size() < 1)
+        {
+            System.out.println("Insufficient number of records to check for patient triggered alerts!");
+        }
+        else 
+        {
+            for(PatientRecord record : triggerRecords)
+            {
+                Alert alert = new Alert(Integer.toString(patient.getId()), "Patient trigerred alert!", record.getTimestamp());
+                triggerAlert(alert);
+            }
+        }
     }
 
     /**
