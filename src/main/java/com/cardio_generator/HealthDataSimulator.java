@@ -36,9 +36,53 @@ import com.cardio_generator.outputs.WebSocketOutputStrategy;
 public class HealthDataSimulator {
 
     private static int patientCount = 50; // Default number of patients
-    private static ScheduledExecutorService scheduler;
     private static OutputStrategy outputStrategy = new ConsoleOutputStrategy(); // Default output strategy
     private static final Random random = new Random();
+    private static HealthDataSimulator instance; // Singleton instance
+    private static ScheduledExecutorService scheduler;
+
+    // Private constructor to prevent instantiation
+    private HealthDataSimulator() {
+        scheduler = Executors.newScheduledThreadPool(50); // Default thread pool size
+    }
+
+    /**
+     * Provides the global access point to the singleton instance of HealthDataSimulator.
+     *
+     * @return the singleton instance of HealthDataSimulator
+     */
+    public static synchronized HealthDataSimulator getInstance() {
+        if (instance == null) {
+            instance = new HealthDataSimulator();
+        }
+        return instance;
+    }
+
+    /**
+     * Starts the simulation with the specified number of patients.
+     *
+     * @param patientCount the number of patients to simulate
+     */
+    public void startSimulation(int patientCount) {
+        HealthDataSimulator.patientCount = patientCount;
+        scheduler = Executors.newScheduledThreadPool(patientCount * 4);
+
+        List<Integer> patientIds = initializePatientIds(patientCount);
+        Collections.shuffle(patientIds); // Randomize the order of patient IDs
+
+        scheduleTasksForPatients(patientIds);
+        System.out.println("Simulation started for " + patientCount + " patients.");
+    }
+
+    /**
+     * Shuts down the simulation.
+     */
+    public void stopSimulation() {
+        if (scheduler != null) {
+            scheduler.shutdown();
+            System.out.println("Simulation stopped.");
+        }
+    }
 
     /**
      * The main method that starts the simulation. Parses arguments, sets up tasks and schedulers.
@@ -50,13 +94,10 @@ public class HealthDataSimulator {
 
         parseArguments(args);
 
-        scheduler = Executors.newScheduledThreadPool(patientCount * 4);
-
-        List<Integer> patientIds = initializePatientIds(patientCount);
-        Collections.shuffle(patientIds); // Randomize the order of patient IDs
-
-        scheduleTasksForPatients(patientIds);
+        HealthDataSimulator simulator = HealthDataSimulator.getInstance();
+        simulator.startSimulation(patientCount);
     }
+
     /**
      * Parses command-line arguments to configure the simulator.
      *
@@ -124,6 +165,7 @@ public class HealthDataSimulator {
             }
         }
     }
+
     /**
      * Prints the help message for the simulator.
      */
@@ -143,6 +185,7 @@ public class HealthDataSimulator {
         System.out.println(
                 "  This command simulates data for 100 patients and sends the output to WebSocket clients connected to port 8080.");
     }
+
     /**
      * Initializes a list of patient IDs.
      *
@@ -156,6 +199,7 @@ public class HealthDataSimulator {
         }
         return patientIds;
     }
+
     /**
      * Schedules tasks for generating health data for each patient.
      *
@@ -176,6 +220,7 @@ public class HealthDataSimulator {
             scheduleTask(() -> alertGenerator.generate(patientId, outputStrategy), 20, TimeUnit.SECONDS);
         }
     }
+
     /**
      * Schedules a task to be executed at a fixed rate.
      *
