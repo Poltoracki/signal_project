@@ -4,7 +4,7 @@ package com.alerts;
  * Represents an alert generated based on patient conditions.
  * Stores information including the patient identifier, condition description, and timestamp.
  */
-public class Alert {
+public class Alert implements AlertInterface {
 
     private String patientId;
     private String condition;
@@ -28,6 +28,7 @@ public class Alert {
      *
      * @return The patient's unique identifier.
      */
+    @Override
     public String getPatientId() {
         return patientId;
     }
@@ -37,6 +38,7 @@ public class Alert {
      *
      * @return The description of the condition.
      */
+    @Override
     public String getCondition() {
         return condition;
     }
@@ -46,6 +48,7 @@ public class Alert {
      *
      * @return The alert's timestamp, in milliseconds since epoch.
      */
+    @Override
     public long getTimestamp() {
         return timestamp;
     }
