@@ -1,13 +1,14 @@
 package com.alerts;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.data_management.*;
-
-// JavaDoc commenting style retained for this class since it provides 
-// external API documentation beneficial for clarity and consistency.
+import com.alerts.strategy.AlertContext;
+import com.alerts.strategy.BloodPressureStrategy;
+import com.alerts.strategy.HeartRateStrategy;
+import com.alerts.strategy.OxygenSaturationStrategy;
+import com.data_management.DataStorage;
+import com.data_management.Patient;
+import com.data_management.PatientRecord;
 
 /**
  * The {@code AlertGenerator} class is responsible for monitoring patient data
@@ -16,15 +17,10 @@ import com.data_management.*;
  * it against specific health criteria.
  */
 public class AlertGenerator {
-    // Marked the field 'dataStorage' as final to clearly enforce immutability
-    // after the object initialization in accordance with best practices.
     private final DataStorage dataStorage;
 
     /**
      * Constructs an {@code AlertGenerator} with a specified {@code DataStorage}.
-     * 
-     * // Shortened the original comment by removing redundancy since
-     * // the class-level JavaDoc already describes its usage.
      *
      * @param dataStorage The data storage system that provides access to patient data
      */
@@ -35,218 +31,38 @@ public class AlertGenerator {
     /**
      * Evaluates the specified patient's data to determine if any alert conditions are met.
      * If a condition is met, an alert is triggered via the {@link #triggerAlert(Alert)} method.
-     * If an alert is triggered, it needs to be added to the {@link AlertManager} repository.
-     * 
-     * // Improved readability by removing unnecessary line breaks and corrected
-     * // JavaDoc inline link formatting to explicitly include the method parameter.
      *
-     * @param patient The patient data to evaluate for alert conditions
+     * @param patient   The patient data to evaluate for alert conditions
+     * @param startTime The start time for the data evaluation period
+     * @param endTime   The end time for the data evaluation period
      */
     public void evaluateData(Patient patient, long startTime, long endTime) {
         List<PatientRecord> records = dataStorage.getRecords(patient.getId(), startTime, endTime);
-        //sort the records so that they're chronically aligned
-        records.sort((r1, r2) -> Long.compare(r1.getTimestamp(), r2.getTimestamp()));
 
-        // Blood pressure data alerts
-        List<PatientRecord> sBloodRecords = dataStorage.getRecords("systolic blood pressure", records);
-        List<PatientRecord> dBloodRecords = dataStorage.getRecords("diastolic blood pressure", records);
+        AlertContext context = new AlertContext();
 
-        // Systolic blood pressure
-        if(sBloodRecords.size() < 1) {
-            System.out.println("Insufficient number of records to check for systolic blood pressure!");
-        }
-        else {
-            for(int i = 0; i < sBloodRecords.size(); i++)
-            {
-                if( i < sBloodRecords.size()-3)
-                {
-                // Checking if it's decreasing
-                if((sBloodRecords.get(i).getMeasurementValue() - sBloodRecords.get(i+1).getMeasurementValue()) > 10 &&
-                (sBloodRecords.get(i+1).getMeasurementValue() - sBloodRecords.get(i+2).getMeasurementValue()) > 10 &&
-                (sBloodRecords.get(i+2).getMeasurementValue() - sBloodRecords.get(i+3).getMeasurementValue()) > 10)
-                {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Decreasing trend in systolic blood pressure", sBloodRecords.get(i+3).getTimestamp());
-                    triggerAlert(alert);
-                }
-
-                // Checking if it's increasing
-                if((sBloodRecords.get(i).getMeasurementValue() - sBloodRecords.get(i+1).getMeasurementValue()) < -10 &&
-                (sBloodRecords.get(i+1).getMeasurementValue() - sBloodRecords.get(i+2).getMeasurementValue()) < -10 &&
-                (sBloodRecords.get(i+2).getMeasurementValue() - sBloodRecords.get(i+3).getMeasurementValue()) < -10)
-                {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Increasing trend in systolic blood pressure", sBloodRecords.get(i+3).getTimestamp());
-                    triggerAlert(alert);
-                }
-                }
-
-                // Checking for critical upper threshold
-                if(sBloodRecords.get(i).getMeasurementValue() > 180) {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial upper threshold for systolic blood pressure", sBloodRecords.get(i).getTimestamp());
-                    triggerAlert(alert);
-                }
-
-                // Checking for critical lower threshold
-                if(sBloodRecords.get(i).getMeasurementValue() < 90) {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial lower threshold for systolic blood pressure", sBloodRecords.get(i).getTimestamp());
-                    triggerAlert(alert);
-                }
-            }
+        // Blood Pressure Strategy
+        context.setStrategy(new BloodPressureStrategy());
+        List<PatientRecord> bpRecords = dataStorage.getRecords("blood pressure", records);
+        Alert bpAlert = context.executeStrategy(patient, bpRecords);
+        if (bpAlert != null) {
+            triggerAlert(bpAlert);
         }
 
-        // Diastolic blood pressure
-        if(dBloodRecords.size() < 1) {
-            System.out.println("Insufficient number of records to check for diastolic blood pressure!");
-        }
-        else {
-            for(int i = 0; i < dBloodRecords.size(); i++)
-            {
-                if(i < dBloodRecords.size()-3)
-                {
-                // Checking if it's decreasing
-                if((dBloodRecords.get(i).getMeasurementValue() - dBloodRecords.get(i+1).getMeasurementValue()) > 10 &&
-                (dBloodRecords.get(i+1).getMeasurementValue() - dBloodRecords.get(i+2).getMeasurementValue()) > 10 &&
-                (dBloodRecords.get(i+2).getMeasurementValue() - dBloodRecords.get(i+3).getMeasurementValue()) > 10)
-                {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Decreasing trend in diastolic blood pressure", dBloodRecords.get(i+3).getTimestamp());
-                    triggerAlert(alert);
-                }
-
-                // Checking if it's increasing
-                if((dBloodRecords.get(i).getMeasurementValue() - dBloodRecords.get(i+1).getMeasurementValue()) < -10 &&
-                (dBloodRecords.get(i+1).getMeasurementValue() - dBloodRecords.get(i+2).getMeasurementValue()) < -10 &&
-                (dBloodRecords.get(i+2).getMeasurementValue() - dBloodRecords.get(i+3).getMeasurementValue()) < -10)
-                {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Increasing trend in diastolic blood pressure", dBloodRecords.get(i+3).getTimestamp());
-                    triggerAlert(alert);
-                }
-                }
-
-                // Checking for critical upper threshold
-                if(dBloodRecords.get(i).getMeasurementValue() > 120) {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial upper threshold for diastolic blood pressure", dBloodRecords.get(i).getTimestamp());
-                    triggerAlert(alert);
-                }
-
-                // Checking for critical lower threshold
-                if(dBloodRecords.get(i).getMeasurementValue() < 60) {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed critial lower threshold for diastolic blood pressure", dBloodRecords.get(i).getTimestamp());
-                    triggerAlert(alert);
-                }
-            }
+        // Heart Rate Strategy
+        context.setStrategy(new HeartRateStrategy());
+        List<PatientRecord> hrRecords = dataStorage.getRecords("heart rate", records);
+        Alert hrAlert = context.executeStrategy(patient, hrRecords);
+        if (hrAlert != null) {
+            triggerAlert(hrAlert);
         }
 
-        // Blood saturation data alerts
-        List<PatientRecord> bSaturationRecords = dataStorage.getRecords("blood oxygen saturation", records);
-
-        // The values we get from getMeasurementValue represent percentages, so 92 would be 92%.
-        if(bSaturationRecords.size() < 1) {
-            System.out.println("Insufficient number of records to check for blood oxygen saturation!");
-        }
-        else {
-            for(int i = 0; i < bSaturationRecords.size(); i++)
-            {
-                if(i < bSaturationRecords.size() - 1)
-                {
-                    // Test for rapid drop
-                    // We chose 600000 to be the value used to represent 10 minutes since in the given example
-                    // in DataStorageTest, the value given for timestamp is in miliseconds, and 10 minutes are equal
-                    // to 600000 miliseconds, and since the records are chronologically ordered, it is guaranteed that
-                    // i + 1 must have either a higher or equal timestamp.
-                    if(bSaturationRecords.get(i).getMeasurementValue() - bSaturationRecords.get(i+1).getMeasurementValue() > 5 &&
-                    bSaturationRecords.get(i+1).getTimestamp() - bSaturationRecords.get(i).getTimestamp() > 6000000)
-                    {
-                        Alert alert = new Alert(Integer.toString(patient.getId()), "Passed test for rapid drop in blood oxygen saturation", bSaturationRecords.get(i+1).getTimestamp());
-                        triggerAlert(alert);
-                    }
-                }
-
-                // Test for low saturation
-                if(bSaturationRecords.get(i).getMeasurementValue() < 92)
-                {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Passed threshold for low blood oxygen saturation!", bSaturationRecords.get(i).getTimestamp());
-                    triggerAlert(alert);
-                }
-            }
-        }
-
-        // Hypotensive hypoxemia data alert
-        LinkedHashMap<PatientRecord, PatientRecord> combinedrecords = new LinkedHashMap<PatientRecord, PatientRecord>();
-
-        // Since this alert should happen when both of the conditions are occurring at the same time
-        // that would mean that the records would have the same timestamp as each other, that's why
-        // I am pairing up the records with the same timestamp with each other.
-        // For the future, in case we would like to increase the accuracy of the alert, we can make it
-        // so that the records must be within a certain time range of one another in order to be paired
-        // up and checked together, however that would be done only if necessary
-        for(PatientRecord record1 : sBloodRecords)
-        {
-            for(PatientRecord record2 : bSaturationRecords)
-            {
-                if(record1.getTimestamp() == record2.getTimestamp())
-                {
-                    combinedrecords.put(record1, record1);
-                }
-            }
-        }
-
-        if(combinedrecords.size() < 1)
-        {
-            System.out.println("Insufficient number of records to check for hypotensive hypoxemia!");
-        }
-        else {
-            // In the entries, the key represents the systolic blood pressure, while the value is the blood saturation.
-            for(Map.Entry<PatientRecord, PatientRecord> entry : combinedrecords.entrySet())
-            {
-                if(entry.getKey().getMeasurementValue() < 90 && entry.getValue().getMeasurementValue() < 92)
-                {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Satisfied conditions for hypotensive hypoxemia!", entry.getKey().getTimestamp());
-                    triggerAlert(alert);
-                }
-            }
-        }
-
-        //ECG data alert
-        List<PatientRecord> ecgRecords = dataStorage.getRecords("ecg", records);
-
-        if(ecgRecords.size() < 1)
-        {
-            System.out.println("Insufficient number of records to check for ECG!");
-        }
-        else {
-            // Setting the value for average
-            double average = 0;
-            double sum = 0;
-            for(PatientRecord record : ecgRecords)
-            {
-                sum += record.getMeasurementValue();
-            }
-            average = sum/ecgRecords.size();
-
-            // Checking for alerts
-            for(PatientRecord record : ecgRecords)
-            {
-                if(record.getMeasurementValue() > 1.5 * average)
-                {
-                    Alert alert = new Alert(Integer.toString(patient.getId()), "Measured abnormally high ECG record!", record.getTimestamp());
-                    triggerAlert(alert);
-                }
-            }
-        }
-
-        // Triggered alert
-        List<PatientRecord> triggerRecords = dataStorage.getRecords("patient", records);
-
-        if(triggerRecords.size() < 1)
-        {
-            System.out.println("Insufficient number of records to check for patient triggered alerts!");
-        }
-        else 
-        {
-            for(PatientRecord record : triggerRecords)
-            {
-                Alert alert = new Alert(Integer.toString(patient.getId()), "Patient trigerred alert!", record.getTimestamp());
-                triggerAlert(alert);
-            }
+        // Oxygen Saturation Strategy
+        context.setStrategy(new OxygenSaturationStrategy());
+        List<PatientRecord> osRecords = dataStorage.getRecords("oxygen saturation", records);
+        Alert osAlert = context.executeStrategy(patient, osRecords);
+        if (osAlert != null) {
+            triggerAlert(osAlert);
         }
     }
 
@@ -254,13 +70,9 @@ public class AlertGenerator {
      * Triggers an alert for the monitoring system. This method can be extended to
      * notify medical staff, log the alert, or perform other actions.
      *
-     * // Removed overly detailed explanation regarding alert completeness
-     * // to adhere to concise, focused JavaDoc recommendations.
-     *
      * @param alert The alert object containing details about the alert condition
      */
     private void triggerAlert(Alert alert) {
-        System.out.println("Patient: " + alert.getPatientId() + "; Condition: " + alert.getCondition() + "; Time: " + alert.getTimestamp() + ";");
-        // AlertManager.add(alert);
+        System.out.println("Patient: " + alert.getPatientId() + "; Condition: " + alert.getCondition() + "; Time: " + alert.getTimestamp());
     }
 }
