@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.alerts.AlertGenerator;
 
@@ -15,7 +16,8 @@ import com.alerts.AlertGenerator;
  */
 public class DataStorage {
     private static DataStorage instance; // Singleton instance
-    private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
+    private final Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(); // Lock for thread-safe access
 
     // Private constructor to prevent instantiation
     public DataStorage() {
@@ -48,12 +50,24 @@ public class DataStorage {
      *                         milliseconds since the Unix epoch
      */
     public void addPatientData(int patientId, double measurementValue, String recordType, long timestamp) {
-        Patient patient = patientMap.get(patientId);
-        if (patient == null) {
-            patient = new Patient(patientId);
-            patientMap.put(patientId, patient);
+        lock.writeLock().lock(); // Acquire write lock for thread-safe updates
+        try {
+            Patient patient = patientMap.get(patientId);
+            if (patient == null) {
+                patient = new Patient(patientId);
+                patientMap.put(patientId, patient);
+            }
+
+            // Check if the record already exists to prevent duplication
+            boolean recordExists = patient.getRecords().stream()
+                .anyMatch(record -> record.getTimestamp() == timestamp && record.getRecordType().equals(recordType));
+
+            if (!recordExists) {
+                patient.addRecord(measurementValue, recordType, timestamp);
+            }
+        } finally {
+            lock.writeLock().unlock(); // Release write lock
         }
-        patient.addRecord(measurementValue, recordType, timestamp);
     }
 
     /**
@@ -111,7 +125,12 @@ public class DataStorage {
      * @return a list of all patients
      */
     public List<Patient> getAllPatients() {
-        return new ArrayList<>(patientMap.values());
+        lock.readLock().lock(); // Acquire read lock for thread-safe access
+        try {
+            return new ArrayList<>(patientMap.values());
+        } finally {
+            lock.readLock().unlock(); // Release read lock
+        }
     }
 
     /**
