@@ -7,8 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Represents a patient and manages their medical records.
  * This class stores patient-specific data, allowing for the addition and
- * retrieval
- * of medical records based on specified criteria.
+ * retrieval of medical records based on specified criteria.
  */
 public class Patient {
     private final int patientId;
@@ -19,7 +18,7 @@ public class Patient {
      * Constructs a new Patient with a specified ID.
      * Initializes an empty list of patient records.
      *
-     * @param patientId the unique identifier for the patient
+     * @param patientId The unique identifier for the patient.
      */
     public Patient(int patientId) {
         this.patientId = patientId;
@@ -28,14 +27,11 @@ public class Patient {
 
     /**
      * Adds a new record to this patient's list of medical records.
-     * The record is created with the specified measurement value, record type, and
-     * timestamp.
+     * The record is created with the specified measurement value, record type, and timestamp.
      *
-     * @param measurementValue the measurement value to store in the record
-     * @param recordType       the type of record, e.g., "HeartRate",
-     *                         "BloodPressure"
-     * @param timestamp        the time at which the measurement was taken, in
-     *                         milliseconds since UNIX epoch
+     * @param measurementValue The measurement value to store in the record.
+     * @param recordType       The type of record, e.g., "HeartRate", "BloodPressure".
+     * @param timestamp        The time at which the measurement was taken, in milliseconds since UNIX epoch.
      */
     public void addRecord(double measurementValue, String recordType, long timestamp) {
         lock.writeLock().lock(); // Acquire write lock for thread-safe updates
@@ -48,15 +44,12 @@ public class Patient {
     }
 
     /**
-     * Retrieves a list of PatientRecord objects for this patient that fall within a
-     * specified time range.
-     * The method filters records based on the start and end times provided.
+     * Retrieves a list of PatientRecord objects for this patient that fall within
+     * a specified time range.
      *
-     * @param startTime the start of the time range, in milliseconds since UNIX
-     *                  epoch
-     * @param endTime   the end of the time range, in milliseconds since UNIX epoch
-     * @return a list of PatientRecord objects that fall within the specified time
-     *         range
+     * @param startTime The start of the time range, in milliseconds since UNIX epoch.
+     * @param endTime   The end of the time range, in milliseconds since UNIX epoch.
+     * @return A list of PatientRecord objects that fall within the specified time range.
      */
     public List<PatientRecord> getRecords(long startTime, long endTime) {
         lock.readLock().lock(); // Acquire read lock for thread-safe access
@@ -73,22 +66,14 @@ public class Patient {
         }
     }
 
-    // We chose to add this method because otherwise, it would have been
-    // impossible to implement many of the alerts described in the week 3
-    // project document. For example Blood Pressure data alerts, we need
-    // to compare 3 consecutive patient records to check how the blood
-    // pressure is changing, however the first getRecords method would 
-    // force us to choose a specific time interval to check, however,
-    // with that arise 2 problems, there is no objective logical way
-    // for us to decide which time interval to choose since we are not
-    // told with what data type we are working with, seconds, minutes, years!?
-    // It is simply not specified so it is impossible for us to even set
-    // custom parameters to check. For that reason instead of caring for
-    // this unclear time interval, we decide to simply compare all consecutive
-    // records to one another and see if any of them would fulfill the conditions.
-    // For that reason, we decided to add this extra and simple method.
-    public List<PatientRecord> getRecords() 
-    {
+    /**
+     * Retrieves all records associated with this patient.
+     * This method was added to support alerts that need to examine patterns
+     * or trends across multiple consecutive records, regardless of timestamp.
+     *
+     * @return A list containing all patient records.
+     */
+    public List<PatientRecord> getRecords() {
         lock.readLock().lock(); // Acquire read lock for thread-safe access
         try {
             return new ArrayList<>(patientRecords);
@@ -97,8 +82,12 @@ public class Patient {
         }
     }
 
-    public int getId()
-    {
+    /**
+     * Returns the unique identifier for the patient.
+     *
+     * @return The patient ID.
+     */
+    public int getId() {
         return patientId;
     }
 }

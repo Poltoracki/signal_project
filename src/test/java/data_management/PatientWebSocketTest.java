@@ -13,12 +13,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+/**
+ * Unit test for verifying WebSocket-based communication between
+ * WebSocket server and client, and ensuring correct data storage
+ * in the DataStorage system.
+ */
 public class PatientWebSocketTest {
 
     private static PatientWebSocketServer server;
     private static final int PORT = 8081; // Use a test port
     private static final String SERVER_URI = "ws://localhost:" + PORT;
 
+    /**
+     * Initializes and starts the WebSocket server before all tests.
+     * Ensures the server is running and ready to accept client connections.
+     */
     @BeforeAll
     public static void startServer() {
         DataStorage storage = DataStorage.getInstance();
@@ -31,11 +40,23 @@ public class PatientWebSocketTest {
         }
     }
 
+    /**
+     * Stops the WebSocket server after all tests have completed.
+     *
+     * @throws Exception if the server fails to shut down properly
+     */
     @AfterAll
     public static void stopServer() throws Exception {
         server.stop();
     }
 
+    /**
+     * Tests the end-to-end communication between a WebSocket client and server.
+     * Verifies that data sent from the client is received by the server,
+     * stored correctly in DataStorage, and can be retrieved accurately.
+     *
+     * @throws Exception if connection or data processing fails
+     */
     @Test
     public void testClientServerConnectionAndDataStorage() throws Exception {
         DataStorage storage = DataStorage.getInstance();

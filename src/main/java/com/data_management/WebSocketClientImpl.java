@@ -6,6 +6,11 @@ import java.net.URISyntaxException;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+/**
+ * A WebSocket client implementation that connects to a WebSocket server,
+ * receives real-time patient data messages, parses them, and stores them
+ * in a shared DataStorage instance.
+ */
 public class WebSocketClientImpl extends WebSocketClient {
 
     private final DataStorage dataStorage;
@@ -22,11 +27,22 @@ public class WebSocketClientImpl extends WebSocketClient {
         this.dataStorage = dataStorage;
     }
 
+    /**
+     * Called when the WebSocket connection is successfully established.
+     *
+     * @param handshake The server handshake data.
+     */
     @Override
     public void onOpen(ServerHandshake handshake) {
         System.out.println("Connected to WebSocket server.");
     }
 
+    /**
+     * Called when a message is received from the server.
+     * Parses the message and stores it as a patient record.
+     *
+     * @param message The incoming message in CSV format.
+     */
     @Override
     public void onMessage(String message) {
         try {
@@ -55,12 +71,25 @@ public class WebSocketClientImpl extends WebSocketClient {
         }
     }
 
+    /**
+     * Called when the WebSocket connection is closed.
+     * Attempts to reconnect in a new thread.
+     *
+     * @param code   The closure code.
+     * @param reason The reason the connection was closed.
+     * @param remote Whether the closure was initiated by the remote peer.
+     */
     @Override
     public void onClose(int code, String reason, boolean remote) {
         System.out.println("Disconnected from WebSocket server. Reason: " + reason);
         new Thread(this::reconnect).start(); // run reconnect in a new thread
     }
 
+    /**
+     * Called when an error occurs on the WebSocket connection.
+     *
+     * @param ex The exception describing the error.
+     */
     @Override
     public void onError(Exception ex) {
         System.err.println("WebSocket error: " + ex.getMessage());
@@ -69,6 +98,7 @@ public class WebSocketClientImpl extends WebSocketClient {
 
     /**
      * Reconnects to the WebSocket server in case of disconnection.
+     * Ensures the reconnect logic runs outside of the WebSocket thread.
      */
     public void reconnect() {
         try {
@@ -82,6 +112,12 @@ public class WebSocketClientImpl extends WebSocketClient {
         }
     }
 
+    /**
+     * Main method for standalone testing.
+     * Creates a WebSocket client, connects to the server, and listens for messages.
+     *
+     * @param args Command-line arguments (not used).
+     */
     public static void main(String[] args) {
         try {
             // Example usage
