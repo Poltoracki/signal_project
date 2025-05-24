@@ -58,8 +58,7 @@ public class WebSocketClientImpl extends WebSocketClient {
     @Override
     public void onClose(int code, String reason, boolean remote) {
         System.out.println("Disconnected from WebSocket server. Reason: " + reason);
-        // Attempt to reconnect
-        reconnect();
+        new Thread(this::reconnect).start(); // run reconnect in a new thread
     }
 
     @Override
