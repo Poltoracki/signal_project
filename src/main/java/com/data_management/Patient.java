@@ -2,6 +2,7 @@ package com.data_management;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a patient and manages their medical records.
@@ -10,8 +11,9 @@ import java.util.List;
  * of medical records based on specified criteria.
  */
 public class Patient {
-    private int patientId;
-    private List<PatientRecord> patientRecords;
+    private final int patientId;
+    private final List<PatientRecord> patientRecords;
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(); // Lock for thread-safe access
 
     /**
      * Constructs a new Patient with a specified ID.
@@ -36,8 +38,13 @@ public class Patient {
      *                         milliseconds since UNIX epoch
      */
     public void addRecord(double measurementValue, String recordType, long timestamp) {
-        PatientRecord record = new PatientRecord(this.patientId, measurementValue, recordType, timestamp);
-        this.patientRecords.add(record);
+        lock.writeLock().lock(); // Acquire write lock for thread-safe updates
+        try {
+            PatientRecord record = new PatientRecord(patientId, measurementValue, recordType, timestamp);
+            patientRecords.add(record);
+        } finally {
+            lock.writeLock().unlock(); // Release write lock
+        }
     }
 
     /**
@@ -52,13 +59,18 @@ public class Patient {
      *         range
      */
     public List<PatientRecord> getRecords(long startTime, long endTime) {
-        List<PatientRecord> filteredRecords = new ArrayList<>();
-        for (PatientRecord record : patientRecords) {
-            if (record.getTimestamp() >= startTime && record.getTimestamp() <= endTime) {
-                filteredRecords.add(record);
+        lock.readLock().lock(); // Acquire read lock for thread-safe access
+        try {
+            List<PatientRecord> filteredRecords = new ArrayList<>();
+            for (PatientRecord record : patientRecords) {
+                if (record.getTimestamp() >= startTime && record.getTimestamp() <= endTime) {
+                    filteredRecords.add(record);
+                }
             }
+            return filteredRecords;
+        } finally {
+            lock.readLock().unlock(); // Release read lock
         }
-        return filteredRecords;
     }
 
     // We chose to add this method because otherwise, it would have been
@@ -77,7 +89,12 @@ public class Patient {
     // For that reason, we decided to add this extra and simple method.
     public List<PatientRecord> getRecords() 
     {
-        return patientRecords;
+        lock.readLock().lock(); // Acquire read lock for thread-safe access
+        try {
+            return new ArrayList<>(patientRecords);
+        } finally {
+            lock.readLock().unlock(); // Release read lock
+        }
     }
 
     public int getId()
