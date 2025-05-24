@@ -1,6 +1,7 @@
 package com.data_management;
 
 import java.io.IOException;
+import java.net.http.WebSocket;
 
 public class MockDataReader implements DataReader{
 
@@ -9,7 +10,7 @@ public class MockDataReader implements DataReader{
         
     }
     @Override
-    public void readData(DataStorage dataStorage) throws IOException 
+    public void readData(WebSocket dataStorage) throws IOException 
     {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'readData'");
