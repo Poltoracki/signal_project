@@ -1,9 +1,9 @@
 package com.cardio_generator.outputs;
 
+import java.net.InetSocketAddress;
+
 import org.java_websocket.WebSocket;
 import org.java_websocket.server.WebSocketServer;
-
-import java.net.InetSocketAddress;
 
 /**
  * An implementation of OutputStrategy that sends patient data to connected clients over WebSocket.
@@ -34,10 +34,20 @@ public class WebSocketOutputStrategy implements OutputStrategy {
      */
     @Override
     public void output(int patientId, long timestamp, String label, String data) {
+        if (label == null || label.isEmpty() || data == null || data.isEmpty()) {
+            System.err.println("Invalid data: Missing label or data value.");
+            return;
+        }
+
         String message = String.format("%d,%d,%s,%s", patientId, timestamp, label, data);
         // Broadcast the message to all connected clients
         for (WebSocket conn : server.getConnections()) {
-            conn.send(message);
+            try {
+                conn.send(message);
+            } catch (Exception e) {
+                System.err.println("Failed to send message to client: " + conn.getRemoteSocketAddress());
+                e.printStackTrace();
+            }
         }
     }
 
